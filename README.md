@@ -1,18 +1,18 @@
-#pyDMCC
+# DMCC_Library
 
-Native Python library to control the Dual Motor Controller Cape for the BeagleBone Black.
+Fork to add native Python support to control the Dual Motor Controller Cape for the BeagleBone Black. We're using the [fork and pull model], so hopefully these changes will be merged back into [Exadler/DMCC_Library] and this fork will be deleted.
 
 ## Authors
 
-This is a fork of Exadler Technologies' C library. Huge shout-out to [Sarah Tan], [Paul Tan] and maybe others for building the hardware and original software. This repo is by the NCSU IEEE Robotics Team, and is heavily inspired by the original code base.
+Huge shout-out to [Sarah Tan], [Paul Tan] and maybe others for building the hardware and original software. This repo is by the NCSU IEEE Robotics Team.
 
 ## Open Hardware
 
 All hardware is Open Source and can be found [here](https://github.com/Exadler/DualMotorControlCape) (schematics, PCB, Eagle files).
 
-## Motivation for Fork
+## Motivation for Native Python Support
 
-The original DMCC library is in C with Python bindings. As of [Exadler/DMCC_Library@1d40b3a], it had performance issues that we believe relate to it's need to open an I2C file descriptor at every call (see below). The IEEE Robotics Team also doesn't need much of the functionally provided by the C code base, but does require code that's easy for new team members to understand, is well documented and clearly tested.
+The original DMCC library is in C with Python bindings. As of [Exadler/DMCC_Library@1d40b3a], it had performance issues that were prohibitive for actual use (see below). Additionally, The IEEE Robotics Team also doesn't need much of the functionally provided by the C code base, but does require code that's easy for new team members to understand, is well documented and clearly tested. We suspect other users have similar needs.
 
 ```python
 In [1]: import time
@@ -60,3 +60,5 @@ Time elapsed: 3.22612094879 s
 [Exadler/DMCC_Library@1d40b3a]: https://github.com/Exadler/DMCC_Library/commit/1d40b3a9403ba6d3012fb83977c6eef426d84849
 [Sarah Tan]: https://github.com/sarahttan
 [Paul Tan]: https://github.com/paulctan
+[fork and pull model]: https://help.github.com/articles/using-pull-requests#fork--pull
+[Exadler/DMCC_Library]: https://github.com/Exadler/DMCC_Library
