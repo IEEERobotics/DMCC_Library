@@ -39,10 +39,35 @@ class Motor(object):
                 self.motor_num, self.i2c.address)
 
     def refresh(self):
+        """Refresh the status registers for reading"""
         self.i2c.registers['Execute'].write('Refresh')
 
-    # TODO: change these to non-decorated properties so we can call the
-    # getter/setters with params (such as skipping the execute/refresh)
+    def reset(self):
+        """Reset QEI"""
+        reg = "Clear_QEI" + str(self.motor_num)
+        self.i2c.registers['Execute'].write(reg)
+
+    # NOTE: Always zero?
+    @property
+    def status(self):
+        """Getter for motor status bits.
+
+        """
+        self.refresh()
+        reg = "Status"
+        field = "ModeMotor" + str(self.motor_num)
+        return self.i2c.registers[reg].read(field)
+
+    @property
+    def current(self):
+        """Return motor current.
+
+        """
+        self.refresh()
+        reg = "CurrentMotor" + str(self.motor_num)
+        return self.i2c.registers[reg].read()
+
+    # NOTE: Reading not implemented?
     @property
     def power(self):
         """Getter for motor power.
@@ -92,6 +117,16 @@ class Motor(object):
         reg = "QEI" + str(self.motor_num) + "Position"
         return self.i2c.registers[reg].read()
 
+    @position.setter
+    def position(self, position):
+        """Set motor position (for PID).
+        
+        """
+    
+        reg = "TargetPosition" + str(self.motor_num)
+        self.i2c.registers[reg].write(position)
+        self.i2c.registers['Execute'].write('Set_Motor1_Position')
+
     @property
     def velocity(self):
         """Return motor velocity.
@@ -101,5 +136,66 @@ class Motor(object):
         """
         self.refresh()
         reg = "QEI" + str(self.motor_num) + "Velocity"
+        return self.i2c.registers[reg].read()
+
+    @velocity.setter
+    def velocity(self, velocity):
+        """Return motor velocity (for PID).
+        
+        """
+    
+        reg = "TargetVelocity" + str(self.motor_num)
+        self.i2c.registers[reg].write(velocity)
+        self.i2c.registers['Execute'].write('Set_Motor1_Speed')
+
+
+    """ PID methods """
+
+    def _get_pid(self, mode):
+        prefix = mode + str(self.motor_num)  
+        params = [] 
+        for name in  ['Kp', 'Ki', 'Kd']:
+            reg = prefix + name
+            params.append(self.i2c.registers[reg].read())
+        return tuple(params)
+
+    def _set_pid(self, mode, params):
+        for p in params:
+            if not (-32768 <= p <= 32767):
+                err_msg = "PID params must be [-32768,+32767]: {}".format(params)
+                self.logger.error(err_msg)
+                raise ValueError(err_msg)
+        params = list(params)
+        prefix = mode + str(self.motor_num)  
+        for name in  ['Kp', 'Ki', 'Kd']:
+            reg = prefix + name
+            k = params.pop(0)
+            self.i2c.registers[reg].write(k)
+
+    @property
+    def position_pid(self):
+        return self._get_pid('Pos')
+
+    # NOTE: Would be nice if there was a way to set maximum velocity or power
+    # for this
+    @position_pid.setter
+    def position_pid(self, params):
+        return self._set_pid('Pos', params)
+
+    @property
+    def velocity_pid(self):
+        return self._get_pid('Vel')
+
+    @velocity_pid.setter
+    def velocity_pid(self, params):
+        return self._set_pid('Vel', params)
+    # NOTE: Not implemented?
+    @property
+    def pid_error(self):
+        """Return error from PID calculations
+
+        """
+        self.refresh()
+        reg = "PID" + str(self.motor_num) + "Error"
         return self.i2c.registers[reg].read()
 
