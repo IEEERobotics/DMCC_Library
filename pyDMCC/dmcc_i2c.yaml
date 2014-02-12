@@ -1,0 +1,245 @@
+name: Dual Motor Control Cape
+url: "https://github.com/Exadler/DMCC_Library"
+version: 6
+addresses: [0x2c,0x2d,0x2e,0x2f]
+
+# A DMCC will lock up the I2C bus if multi-byte data calls are made.
+# This is not a probem for data integrity, as the registers are only refreshed 
+# after an explicit write to the Execute register is made.
+protocol:
+    multi: False
+
+command:
+    default: 0x00
+
+registers:
+    0x00:    
+      name: Status
+      description: System status
+      access: [read]
+      type: bitfield
+      writemask: 0x0f
+      bits: 
+        1:  # [1:0]
+            length: 2
+            name: ModeMotor1
+            values:
+                 0b00: Power
+                 0b01: Position
+                 0b10: Velocity
+                 0b11: Fault
+        3:  # [3:2]
+            length: 2
+            name: ModeMotor2
+            values:
+                 0b00: Power
+                 0b01: Position
+                 0b10: Velocity
+                 0b11: Fault
+    0x01:    
+        name: Polarity
+        type: bitfield
+        description: Polarity??
+        access: [read] 
+        bits: 
+            0:
+                length: 1
+                name: Motor1Dir
+                values:
+                     0: Normal
+                     1: Reverse
+            1:
+                length: 1
+                name: Motor2Dir
+                values:
+                     0: Normal
+                     1: Reverse
+            2:
+                length: 1
+                name: QEI1Dir
+                values:
+                     0: Normal
+                     1: Reverse
+            3:
+                length: 1
+                name: QEI2Dir
+                values:
+                     0: Normal
+                     1: Reverse
+
+    0x02:
+        name: PowerMotor1
+        description: Power level for motor 1
+        type: int16
+        access: [read,write]
+        min: -10000
+        max: 10000
+        default: 0
+    0x04:
+        name: PowerMotor2
+        description: Power level for motor 2
+        type: int16
+        access: [read,write]
+        min: -10000
+        max: 10000
+        default: 0
+    0x06:
+        name: Voltage
+        description: Supply voltage
+        type: int16
+        access: [read]
+    0x10:
+        name: QEI1Position
+        description: Position according the first quadrature encoder input
+        type: int32
+        access: [read]
+    0x14:
+        name: QEI2Position
+        description: Position according the second quadrature encoder input
+        type: int32
+        access: [read]
+    0x18:
+        name: QEI1Velocity
+        type: int16
+        access: [read]
+    0x1a:
+        name: QEI2Velocity
+        type: int16
+        access: [read]
+    0x1c:
+        name: CurrentMotor1
+        description: Current through motor 1
+        type: uint16
+        access: [read]
+    0x1e:
+        name: CurrentMotor2
+        description: Current through motor 2
+        type: uint16
+        access: [read]
+
+    0x20:
+        name: TargetPosition1
+        description: Encoder 1 target when PID controller is in position mode
+        type: int32
+        access: [read,write]
+    0x24:
+        name: TargetPosition2
+        description: Encoder 2 target when PID controller is in position mode
+        type: int32
+        access: [read,write]
+    0x28:
+        name: TargetVelocity1
+        description: Encoder 1 target when PID controller is in velocity mode
+        type: int16
+        access: [read,write]
+    0x2a:
+        name: TargetVelocity2
+        description: Encoder 2 target when PID controller is in velocity mode
+        type: int16
+        access: [read,write]
+
+    0x2c:
+        name: PID1Error
+        description: Error from PID calcuations
+        type: int16
+        access: [read]
+    0x2e:
+        name: PID2Error
+        description: Error from PID calcuations
+        type: int16
+        access: [read]
+
+    0x30:
+        name: Pos1Kp
+        description: Proportional parameter for PID controller 1 in position mode
+        type: int16
+        access: [read,write]
+    0x32:
+        name: Pos1Ki
+        description: Integral parameter for PID controller 1 in position mode
+        type: int16
+        access: [read,write]
+    0x34:
+        name: Pos1Kd
+        description: Derivative parameter for PID controller 1 in position mode
+        type: int16
+        access: [read,write]
+    0x36:
+        name: Vel1Kp
+        description: Proportional parameter for PID controller 1 in velocity mode
+        type: int16
+        access: [read,write]
+    0x38:
+        name: Vel1Ki
+        description: Integral parameter for PID controller 1 in velocity mode
+        type: int16
+        access: [read,write]
+    0x3a:
+        name: Vel1Kd
+        description: Derivative parameter for PID controller 1 in velocity mode
+        type: int16
+        access: [read,write]
+
+    0x40:
+        name: Pos2Kp
+        description: Proportional parameter for PID controller 2 in position mode
+        type: int16
+        access: [read,write]
+    0x42:
+        name: Pos2Ki
+        description: Integral parameter for PID controller 2 in position mode
+        type: int16
+        access: [read,write]
+    0x44:
+        name: Pos2Kd
+        description: Derivative parameter for PID controller 2 in position mode
+        type: int16
+        access: [read,write]
+    0x46:
+        name: Vel2Kp
+        description: Proportional parameter for PID controller 2 in velocity mode
+        type: int16
+        access: [read,write]
+    0x48:
+        name: Vel2Ki
+        description: Integral parameter for PID controller 2 in velocity mode
+        type: int16
+        access: [read,write]
+    0x4a:
+        name: Vel2Kd
+        description: Derivative parameter for PID controller 2 in velocity mode
+        type: int16
+        access: [read,write]
+
+    0xe0:  # 0xe0 - 0xef
+        name: CapeId
+        type: string
+        length: 16
+
+    0xff:
+        name: Execute
+        description: Execute changes and refresh
+        type: int8
+        access: [write]
+        values:
+            0x00: Refresh
+            0x01: Set_Motor1_Power
+            0x02: Set_Motor2_Power
+            0x03: Set_Motor_Power
+            0x11: Set_Motor1_Position
+            0x12: Set_Motor2_Position
+            0x13: Set_Motor_Position
+            0x21: Set_Motor1_Speed
+            0x22: Set_Motor2_Speed
+            0x23: Set_Motor_Speed
+            0x30: Clear_QEI1
+            0x31: Clear_QEI2
+            0x32: Clear_QEI
+            0x41: EEPROM_Read_Write
+            0x42: EEPROM_Read_Only
+            0xff: Set_Motor_Power_Alt
+        default: 0
+        
+meta:       
+  i2c_ddl_version: 1
+

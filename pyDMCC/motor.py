@@ -2,12 +2,11 @@
 
 import lib.lib as lib
 
-
 class Motor(object):
 
     """Abstracts a hardware motor controlled by DMCC."""
 
-    def __init__(self, board_num, motor_num):
+    def __init__(self, i2c_device, motor_num):
         """Initializer for a motor object
 
         TODO: Actually setup the board and motor.
@@ -21,18 +20,13 @@ class Motor(object):
         """
         self.logger = lib.get_logger()
 
-        if board_num < 0 or board_num > 3:
-            err_msg = "Board number invalid (0-3): {}".format(board_num)
-            self.logger.error(err_msg)
-            raise ValueError(err_msg)
-
-        if motor_num < 1 or motor_num > 2:
+        if not motor_num in [1,2]:
             err_msg = "Motor number invalid (1-2): {}".format(motor_num)
             self.logger.error(err_msg)
             raise ValueError(err_msg)
 
-        self.board_num = board_num
         self.motor_num = motor_num
+        self.i2c = i2c_device
         self._velocity = 0
 
     def __str__(self):
@@ -41,29 +35,71 @@ class Motor(object):
         :returns: String that describes this motor in a human-readable way.
 
         """
-        return "board_num: {}, motor_num: {}".format(self.board_num,
-            self.motor_num)
+        return "DMCC motor {} at I2C addresss {:#4x}".format(
+                self.motor_num, self.i2c.address)
+
+    def refresh(self):
+        self.i2c.registers['Execute'].write('Refresh')
+
+    # TODO: change these to non-decorated properties so we can call the
+    # getter/setters with params (such as skipping the execute/refresh)
+    @property
+    def power(self):
+        """Getter for motor power.
+
+        BBB execution time: ~2ms
+        
+        """
+        self.refresh()
+        reg = "PowerMotor" + str(self.motor_num)
+        return self.i2c.registers[reg].read() / 100.0
+
+    @power.setter
+    def power(self, power):
+        """Set this motor to the given power.
+
+        For performance reasons, avoid calls slow class (e.g. Str.foramt{}
+        within the realm of normal operation.
+
+        BBB execution time: ~4ms
+
+        :param power: Power to set motor to (-100 to 100).
+        :type power: float
+
+        """
+        if not(-100 <= power <= 100):
+            self.logger.warning(
+                    "Power invalid (-100.0 to 100.0): {}".format(power))
+            return False
+
+        # DMCC actually clamps values within -10000 to +10000
+        data_reg = "PowerMotor" + str(self.motor_num)
+        self.i2c.registers[data_reg].write(int(power*100))
+
+        control_id = "Set_Motor" + str(self.motor_num) + "_Power"
+        self.i2c.registers['Execute'].write(control_id)
+       
+        self.logger.debug("Power set to %d", power)
+
+    @property
+    def position(self):
+        """Return motor position.
+
+        BBB execution time:
+        
+        """
+        self.refresh()
+        reg = "QEI" + str(self.motor_num) + "Position"
+        return self.i2c.registers[reg].read()
 
     @property
     def velocity(self):
-        """Getter for motor's velocity."""
-        return self._velocity
+        """Return motor velocity.
 
-    @velocity.setter
-    def velocity(self, velocity):
-        """Set this motor to the given PID-controlled velocity.
-
-        TODO: Take velocity as % of max, then convert.
-        TODO: Actually speak I2C.
-
-        :param velocity: Velocity to set motor to (-32768 to 32767).
-        :type velocity: int
-
+        BBB execution time:
+        
         """
-        if velocity < -32768 or velocity > 32767:
-            self.logger.warning("Velocity invalid (-32768-32767): {}".format(
-                velocity))
-            return False
+        self.refresh()
+        reg = "QEI" + str(self.motor_num) + "Velocity"
+        return self.i2c.registers[reg].read()
 
-        self._velocity = velocity
-        self.logger.debug("Velocity set to {}".format(self._velocity))
