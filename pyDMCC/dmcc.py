@@ -1,6 +1,6 @@
 """Manage DMCC motors at a high level."""
 
-import lib.lib as lib
+import lib
 from motor import Motor
 from i2c_device import I2CDevice
 
@@ -19,7 +19,7 @@ def autodetect():
     for i in range(4):
         try:
             cape = DMCC(i, verify=True)
-        except (RuntimeError, IOError):
+        except (RuntimeError, IOError) as e:
             continue
         capes[i] = cape
     return capes

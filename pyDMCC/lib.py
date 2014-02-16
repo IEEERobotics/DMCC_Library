@@ -8,9 +8,9 @@ from os import path
 _logger = None
 _config = None
 _config_file = None
+_default_config = path.dirname(path.realpath(__file__))+"/default_config.json"
 
-
-def get_config(config_file="config.json"):
+def get_config(config_file=_default_config):
     """Load and return configuration options.
 
     Note that this config is only loaded once (it's a singleton).

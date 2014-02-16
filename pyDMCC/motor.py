@@ -1,6 +1,6 @@
 """Abstraction of a DMCC motor."""
 
-import lib.lib as lib
+import lib
 
 class Motor(object):
 

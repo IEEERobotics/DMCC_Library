@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys
-topdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(topdir)
-import dmcc
+import pyDMCC
 
 import signal
 from time import time,sleep
@@ -23,7 +21,7 @@ def status():
             motor.status, motor.position, motor.velocity, motor.pid_error, motor.power, motor.current)
 
 
-dmccs = dmcc.autodetect()
+dmccs = pyDMCC.autodetect()
 
 for d in dmccs.values():
     print "DMCC #{} @ {:#04x} : Voltage = {}".format(
