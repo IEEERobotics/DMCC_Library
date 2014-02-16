@@ -3,7 +3,7 @@
 import logging
 import unittest
 
-import lib.lib as lib
+import pyDMCC.lib as lib
 
 
 class TestGetConfig(unittest.TestCase):

@@ -2,7 +2,7 @@
 
 import unittest
 
-from motor import Motor
+from pyDMCC.motor import Motor
 
 class TestCreation(unittest.TestCase):
 

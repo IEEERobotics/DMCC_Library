@@ -23,7 +23,7 @@ venv:
 	@echo Activate with \"source $(VENV)/bin/activate\"
 
 clean:
-	rm -rf build *.egg *.egg-info
+	rm -rf build *.egg *.egg-info *.log *.log.[0-9]
 	find . -name "*.pyc" -print0 | xargs -0 rm -f
 
 # vim: set noexpandtab:

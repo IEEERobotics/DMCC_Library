@@ -32,7 +32,7 @@ class DMCC(object):
 
     """
 
-    def __init__(self, id, verify=True):
+    def __init__(self, id, verify=True, bus=1):
         """Build logger, initial setup."""
         self.logger = lib.get_logger()
 
@@ -47,7 +47,7 @@ class DMCC(object):
         else:
             self.cape_num = id - BASE_ADDR
 
-        self.i2c = I2CDevice(bus=1, address=self.address, config='dmcc_i2c.yaml')
+        self.i2c = I2CDevice(bus, address=self.address, config='dmcc_i2c.yaml')
 
         if verify:
             cape_str = self.i2c.registers['CapeId'].read()

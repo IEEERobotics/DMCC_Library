@@ -2,8 +2,7 @@
 
 import unittest
 
-from dmcc import DMCC
-from motor import Motor
+from pyDMCC.dmcc import DMCC, Motor
 
 
 class TestBuildMotor(unittest.TestCase):
@@ -14,11 +13,11 @@ class TestBuildMotor(unittest.TestCase):
         """Test building a dmcc with valid param."""
         
         # Test by instanitate by id
-        dmcc = DMCC(0, verify=False)
+        dmcc = DMCC(0, verify=False, bus=None)
         assert type(dmcc) is DMCC
 
         # Test by instanitate by address
-        dmcc = DMCC(0x2d, verify=False)
+        dmcc = DMCC(0x2d, verify=False, bus=None)
         assert type(dmcc) is DMCC
 
     def test_invalid_board_id(self):
