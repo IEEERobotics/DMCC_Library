@@ -2,12 +2,17 @@
 
 import unittest
 
-from pyDMCC.dmcc import DMCC, Motor
+from pyDMCC.dmcc import DMCC, Motor, lib
+from os import path
 
 
 class TestBuildMotor(unittest.TestCase):
 
     """Test building DMCC motors."""
+
+    def setUp(self):
+        config = path.dirname(path.realpath(__file__))+"/test_config.json"
+        lib.get_config(config)
 
     def test_valid(self):
         """Test building a dmcc with valid param."""

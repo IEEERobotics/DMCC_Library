@@ -7,15 +7,11 @@ class Motor(object):
     """Abstracts a hardware motor controlled by DMCC."""
 
     def __init__(self, i2c_device, motor_num):
-        """Initializer for a motor object
+        """Initialize a motor object
 
-        TODO: Actually setup the board and motor.
-
-        :param board_num: Number of board that motor is controlled by (0 to 3).
-        :type board_num: int
+        :param i2c_device: The initialized I2CDevice for this motor's DMCC
         :param motor_num: Number of motor to set velocity (1 or 2).
-        :type motor_num: init
-        :raises: ValueError
+        :type motor_num: int
 
         """
         self.logger = lib.get_logger()
@@ -72,8 +68,8 @@ class Motor(object):
     def power(self):
         """Getter for motor power.
 
-        BBB execution time: ~2ms
-        
+        BBB execution time: ~2.4 ms
+
         """
         self.refresh()
         reg = "PowerMotor" + str(self.motor_num)
@@ -86,7 +82,7 @@ class Motor(object):
         For performance reasons, avoid calls slow class (e.g. Str.foramt{}
         within the realm of normal operation.
 
-        BBB execution time: ~4ms
+        BBB execution time: 2-2.4 ms
 
         :param power: Power to set motor to (-100 to 100).
         :type power: float
@@ -103,15 +99,17 @@ class Motor(object):
 
         control_id = "Set_Motor" + str(self.motor_num) + "_Power"
         self.i2c.registers['Execute'].write(control_id)
-       
-        self.logger.debug("Power set to %d", power)
+
+        # NB: avoid preformatting logger strings for performance
+        self.logger.debug("Motor %d @ 0x%x: Power set to %d", 
+                self.motor_num, self.i2c.address, power)
 
     @property
     def position(self):
         """Return motor position.
 
         BBB execution time:
-        
+
         """
         self.refresh()
         reg = "QEI" + str(self.motor_num) + "Position"
@@ -120,9 +118,9 @@ class Motor(object):
     @position.setter
     def position(self, position):
         """Set motor position (for PID).
-        
+
         """
-    
+
         reg = "TargetPosition" + str(self.motor_num)
         self.i2c.registers[reg].write(position)
         self.i2c.registers['Execute'].write('Set_Motor1_Position')
@@ -132,7 +130,7 @@ class Motor(object):
         """Return motor velocity.
 
         BBB execution time:
-        
+
         """
         self.refresh()
         reg = "QEI" + str(self.motor_num) + "Velocity"
@@ -141,9 +139,9 @@ class Motor(object):
     @velocity.setter
     def velocity(self, velocity):
         """Return motor velocity (for PID).
-        
+
         """
-    
+
         reg = "TargetVelocity" + str(self.motor_num)
         self.i2c.registers[reg].write(velocity)
         self.i2c.registers['Execute'].write('Set_Motor1_Speed')
@@ -152,8 +150,8 @@ class Motor(object):
     """ PID methods """
 
     def _get_pid(self, mode):
-        prefix = mode + str(self.motor_num)  
-        params = [] 
+        prefix = mode + str(self.motor_num)
+        params = []
         for name in  ['Kp', 'Ki', 'Kd']:
             reg = prefix + name
             params.append(self.i2c.registers[reg].read())
@@ -166,7 +164,7 @@ class Motor(object):
                 self.logger.error(err_msg)
                 raise ValueError(err_msg)
         params = list(params)
-        prefix = mode + str(self.motor_num)  
+        prefix = mode + str(self.motor_num)
         for name in  ['Kp', 'Ki', 'Kd']:
             reg = prefix + name
             k = params.pop(0)

@@ -1,1 +1,7 @@
-{"logging": {"log_file": "dmcc.log", "file_handler_level": "DEBUG", "stream_handler_level": "INFO"}}
+{
+    "logging": {
+        "log_file": "dmcc.log",
+        "file_handler_level": "DEBUG",
+        "stream_handler_level": "INFO"
+    }
+}

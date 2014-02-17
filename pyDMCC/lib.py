@@ -7,10 +7,10 @@ from os import path
 
 _logger = None
 _config = None
-_config_file = None
-_default_config = path.dirname(path.realpath(__file__))+"/default_config.json"
+_loaded_config_file = None
+default_config = path.dirname(path.realpath(__file__))+"/default_config.json"
 
-def get_config(config_file=_default_config):
+def get_config(config_file=None):
     """Load and return configuration options.
 
     Note that this config is only loaded once (it's a singleton).
@@ -21,17 +21,25 @@ def get_config(config_file=_default_config):
 
     """
     # Don't load config file if it is already loaded (and filename matches)
-    global _config, _config_file
-    if _config is not None and config_file == _config_file:
+    global _config, _loaded_config_file
+
+    # We can't simply throw default_config in as a default parameter.  Doing so
+    # would make it impossible to differentiate between an unspecified config
+    # (which should use the default only when no config has been loaded) versus
+    # a desire to actually load the default config explicitly.
+    if config_file is None:
+        if _loaded_config_file is None:
+            config_file = default_config
+        else:
+            return _config
+
+    if config_file == _loaded_config_file:
         return _config
-    _config_file = config_file
 
-    # Build valid path from CWD to config file
-    qual_config_file = config_file
-
-    # Open and read config file
-    with open(qual_config_file) as config_fd:
-        return json.load(config_fd)
+    with open(config_file) as config_fd:
+        _config = json.load(config_fd)
+        _loaded_config_file = config_file
+        return _config
 
 
 def get_logger():
@@ -103,6 +111,6 @@ def get_logger():
     if needRoll:
         logger.handlers[0].doRollover()
 
-    logger.debug("Logger built")
+    logger.debug("Logger configured: {}".format(_loaded_config_file))
     _logger = logger
     return logger
