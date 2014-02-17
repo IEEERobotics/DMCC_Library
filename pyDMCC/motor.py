@@ -101,7 +101,7 @@ class Motor(object):
         self.i2c.registers['Execute'].write(control_id)
 
         # NB: avoid preformatting logger strings for performance
-        self.logger.debug("Motor %d @ 0x%x: Power set to %d", 
+        self.logger.debug("Motor %d @ 0x%x: Power set to %d",
                 self.motor_num, self.i2c.address, power)
 
     @property
