@@ -19,9 +19,9 @@ setup(
   author_email='support@exadler.com',
   packages=find_packages(),
   include_package_data=True,
-  scripts = glob("examples/*"),
+  zip_safe=False,
   data_files = [ (pkg_name, [pkg_name + "/default_config.json"]) ],
-  zip_safe=True,
+  scripts = glob("examples/*"),
   install_requires=[
     'i2c_device'
   ],
