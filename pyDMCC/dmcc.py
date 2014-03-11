@@ -37,15 +37,17 @@ class DMCC(object):
 
     """
 
-    def __init__(self, id, verify=False, bus=1):
+    def __init__(self, id, verify=False, bus=1, logger=None):
         """Create I2C interface, optionally verify DMCC
 
         :param id: The cape index or I2C address of the DMCC to initialzie
         :param verify: Perform an active test to verify the presence of a DMCC
 
         """
-
-        self.logger = lib.get_logger()
+        if logger == None:
+            self.logger = lib.get_logger()
+        else:
+            self.logger = logger
 
         if not (0 <= id <= 3) and not (BASE_ADDR <= id <= BASE_ADDR+3):
             err_msg = ("DMCC id can either be an index (0-3) " +

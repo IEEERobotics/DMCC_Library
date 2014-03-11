@@ -111,6 +111,5 @@ def get_logger():
     if needRoll:
         logger.handlers[0].doRollover()
 
-    logger.debug("Logger configured: {}".format(_loaded_config_file))
     _logger = logger
     return logger
