@@ -27,7 +27,7 @@ for d in dmccs.values():
     print "DMCC #{} @ {:#04x} : Voltage = {}".format(
             d.cape_num, d.address, d.voltage)
 
-motor = dmccs[1].motors[1]
+motor = dmccs[0].motors[1]
 
 print "PID constants (pos):", motor.position_pid
 constants =  (-5000, -200, -500)
