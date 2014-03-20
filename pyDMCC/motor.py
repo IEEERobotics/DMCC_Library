@@ -123,7 +123,7 @@ class Motor(object):
 
         reg = "TargetPosition" + str(self.motor_num)
         self.i2c.registers[reg].write(position)
-        self.i2c.registers['Execute'].write('Set_Motor1_Position')
+        self.i2c.registers['Execute'].write('Set_Motor{}_Position'.format(str(self.motor_num)))
 
     @property
     def velocity(self):
@@ -144,7 +144,7 @@ class Motor(object):
 
         reg = "TargetVelocity" + str(self.motor_num)
         self.i2c.registers[reg].write(velocity)
-        self.i2c.registers['Execute'].write('Set_Motor1_Speed')
+        self.i2c.registers['Execute'].write('Set_Motor{}_Speed'.format(str(self.motor_num)))
 
 
     """ PID methods """
